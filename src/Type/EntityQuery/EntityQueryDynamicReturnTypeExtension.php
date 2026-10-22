@@ -66,6 +66,14 @@ class EntityQueryDynamicReturnTypeExtension implements DynamicMethodReturnTypeEx
                     ? IntegerRangeType::createAllGreaterThanOrEqualTo(0)
                     : new EntityQueryExecuteWithoutAccessCheckCountType();
             }
+            if ($varType->isAggregate()) {
+                // An aggregate query returns a list of result rows, each keyed
+                // by the aggregate results and the groupBy columns.
+                $rowType = new ArrayType(new StringType(), new StringType());
+                return $varType->hasAccessCheck()
+                    ? new ArrayType(new IntegerType(), $rowType)
+                    : new EntityQueryExecuteWithoutAccessCheckType(new IntegerType(), $rowType);
+            }
             if ($varType instanceof ConfigEntityQueryType) {
                 return $varType->hasAccessCheck()
                     ? new ArrayType(new StringType(), new StringType())

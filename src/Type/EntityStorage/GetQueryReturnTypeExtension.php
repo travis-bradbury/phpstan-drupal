@@ -59,12 +59,17 @@ final class GetQueryReturnTypeExtension implements DynamicMethodReturnTypeExtens
             return $returnType;
         }
 
+        $isAggregate = $methodReflection->getName() === 'getAggregateQuery';
+
         if ((new ObjectType(ContentEntityStorageInterface::class))->isSuperTypeOf($callerType)->yes()) {
-            return new ContentEntityQueryType($className);
+            $queryType = new ContentEntityQueryType($className);
+            return $isAggregate ? $queryType->asAggregate() : $queryType;
         }
         if ((new ObjectType(ConfigEntityStorageInterface::class))->isSuperTypeOf($callerType)->yes()) {
-            return new ConfigEntityQueryType($className);
+            $queryType = new ConfigEntityQueryType($className);
+            return $isAggregate ? $queryType->asAggregate() : $queryType;
         }
-        return new EntityQueryType($className);
+        $queryType = new EntityQueryType($className);
+        return $isAggregate ? $queryType->asAggregate() : $queryType;
     }
 }
